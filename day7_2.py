@@ -59,45 +59,49 @@ with open('day7_1-input.txt', 'r') as f:
         find_path(0, start_col)
         return results
 
-    # now count all complete paths from row 0 to last row
-    r, c = len(colider), len(colider[0])
+    def count_all_paths(colider):
+        # now count all complete paths from row 0 to last row
+        r, c = len(colider), len(colider[0])
 
-    start_col = 0
-    for c_no, ch in enumerate(colider[0], 0):
-        if ch == 'S':
-            start_col = c_no
-            break
-    print(f"Starting at 0,{start_col}")
+        start_col = 0
+        for c_no, ch in enumerate(colider[0], 0):
+            if ch == 'S':
+                start_col = c_no
+                break
+        print(f"Starting at 0,{start_col}")
 
-    @lru_cache(maxsize=None)
-    def count_paths(row, col):
-        if not (0 <= row < r and 0 <= col < c):
-            return 0
+        @lru_cache(maxsize=None)
+        def count_paths(row, col):
+            if not (0 <= row < r and 0 <= col < c):
+                return 0
 
-        # path is complete if we reached last row from above
-        if row == r - 1:
-            # we only count if this node is actually on the ray
-            if colider[row][col] in ('|'):
-                return 1
-            return 0
+            # path is complete if we reached last row from above
+            if row == r - 1:
+                # we only count if this node is actually on the ray
+                if colider[row][col] in ('|'):
+                    return 1
+                return 0
 
-        total = 0
-        nr = row + 1
-        below = colider[nr][col]
+            total = 0
+            next_row = row + 1
+            below = colider[next_row][col]
 
-        if below == "^":
-            # split to left/right pipes on next row
-            if col > 0 and colider[nr][col-1] == "|":
-                total += count_paths(nr, col-1)
-            if col < c - 1 and colider[nr][col+1] == "|":
-                total += count_paths(nr, col+1)
-        elif below == "|":
-            # continue straight down
-            total += count_paths(nr, col)
+            if below == "^":
+                # split to left/right pipes on next row
+                if col > 0 and colider[next_row][col-1] == "|":
+                    total += count_paths(next_row, col-1)
+                if col < c - 1 and colider[next_row][col+1] == "|":
+                    total += count_paths(next_row, col+1)
+            elif below == "|":
+                # continue straight down
+                total += count_paths(next_row, col)
 
-        return total
+            return total
+        total_paths = 0
+        total_paths = count_paths(0, start_col)
+        return total_paths
 
     #results = find_paths(colider)
     #print(f"Total paths {len(results)}")
-    total_paths = count_paths(0, start_col)
-    print(f"Total paths {total_paths}")
+    results = count_all_paths(colider)
+    print(f"Total paths {results}")
